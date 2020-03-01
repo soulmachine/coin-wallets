@@ -35,8 +35,6 @@ export async function send(
     );
   }
 
-  console.info(utils.parseEther('0.00002').toString());
-
   const wallet = Wallet.fromMnemonic(USER_CONFIG.MNEMONIC!).connect(getDefaultProvider());
 
   // const nonce = await wallet.getTransactionCount();
@@ -44,7 +42,7 @@ export async function send(
   const transaction: TransactionRequest = {
     // nonce,
     // gasLimit: 21000,
-    // gasPrice: utils.bigNumberify('200000000'),
+    // gasPrice: utils.bigNumberify('2000000000'),
     to,
     value: utils.parseEther(quantity),
     data: '0x',
