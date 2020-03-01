@@ -1,4 +1,4 @@
-# crypto-wallet
+# coin-wallets
 
 One library to manage all cryptocurrencies.
 
@@ -6,7 +6,7 @@ One library to manage all cryptocurrencies.
 
 ```javascript
 /* eslint-disable import/no-unresolved,no-console */
-const { init, send } = require('crypto-wallet');
+const { init, send } = require('coin-wallets');
 
 init({
   eosAccount: 'Your EOS account',
@@ -20,5 +20,5 @@ console.info(await send({ symbol: 'EOS', address: 'EOS account', memo: 'EOS memo
 ## Quick Start
 
 ```bash
-npx crypto-wallet balance
+npx coin-wallets balance
 ```

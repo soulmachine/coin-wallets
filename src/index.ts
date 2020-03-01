@@ -2,6 +2,7 @@ import { strict as assert } from 'assert';
 import { getTokenInfo } from 'eos-token-info';
 import { isValidPrivate } from 'eosjs-ecc';
 import { getCurrencyBalance, transfer } from './chains/defuse_eos';
+import * as ETH from './chains/eth';
 import { Address, SYMBOLS_REQUIRE_MEMO, SYMBOLS_REQUIRE_PROTOCOL } from './pojo';
 import { UserConfig, USER_CONFIG } from './user_config';
 import { calcDecimals } from './utils';
@@ -15,7 +16,7 @@ export function init({
   DFUSE_API_KEY = '',
   eosAccount = '',
   eosPrivateKey = '',
-  ethPrivateKey = '',
+  MNEMONIC = '',
 }: UserConfig): void {
   if (eosAccount) {
     assert.ok(DFUSE_API_KEY);
@@ -29,7 +30,7 @@ export function init({
     USER_CONFIG.DFUSE_API_KEY = DFUSE_API_KEY;
   }
 
-  if (ethPrivateKey) USER_CONFIG.ethPrivateKey = ethPrivateKey;
+  if (MNEMONIC) USER_CONFIG.MNEMONIC = MNEMONIC;
 }
 
 /**
@@ -70,6 +71,8 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
         to.memo,
       );
     }
+    case 'ETH':
+      return ETH.send(to.symbol, to.address, quantity);
     default:
       throw new Error(`Unsupported symbol ${to.symbol}`);
   }
@@ -85,6 +88,8 @@ export async function queryBalance(symbol: string): Promise<number> {
   switch (symbol) {
     case 'EOS':
       return getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
+    case 'ETH':
+      return ETH.getTokenBalance('ETH');
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }

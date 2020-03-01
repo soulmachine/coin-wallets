@@ -3,7 +3,7 @@ export interface UserConfig {
   eosAccount?: string;
   eosPrivateKey?: string;
   eosApiEndpoints?: string[];
-  ethPrivateKey?: string;
+  MNEMONIC?: string;
 }
 
 // Should be initialized by init().

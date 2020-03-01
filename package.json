@@ -1,6 +1,6 @@
 {
   "name": "coin-wallets",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "One library to manage all cryptocurrencies.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -58,6 +58,7 @@
     "eos-token-info": "^0.1.1",
     "eosjs": "^20.0.3",
     "eosjs-ecc": "^4.0.7",
+    "ethers": "^4.0.45",
     "node-fetch": "^2.6.0",
     "text-encoding": "^0.7.0",
     "yargs": "^15.2.0"
