@@ -47,7 +47,8 @@ export async function send(
     value: utils.parseEther(quantity),
     data: '0x',
   };
-  // const signedTransaction = await wallet.sign(transaction);
 
-  return wallet.sendTransaction(transaction);
+  return wallet.sendTransaction(transaction).catch((e: Error) => {
+    return e;
+  });
 }
