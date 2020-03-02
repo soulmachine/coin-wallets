@@ -14,8 +14,8 @@
     "start": "node ./dist/index.js",
     "lint": "eslint . --ext '.js,.jsx,.ts,.tsx,.md'",
     "prettier": "prettier -c --write '**/*'",
-    "prepublish": "npm run lint && npm run prettier && npm run build",
-    "test": "jest --config jest.config.json --no-cache"
+    "test": "jest --config jest.config.json --no-cache",
+    "prepublish": "npm run build && npm run lint && npm run prettier && npm run test"
   },
   "repository": {
     "type": "git",
