@@ -2,8 +2,6 @@ import { strict as assert } from 'assert';
 import { getTokenInfo } from 'eos-token-info';
 import { isValidPrivate } from 'eosjs-ecc';
 import * as BCH from './chains/bch';
-import * as BSV from './chains/bsv';
-import * as BTC from './chains/btc';
 import * as EOS from './chains/eos';
 import * as ETH from './chains/eth';
 import { Address, SYMBOLS_REQUIRE_MEMO, SYMBOLS_REQUIRE_PROTOCOL } from './pojo';
@@ -97,36 +95,6 @@ export async function queryBalance(symbol: string): Promise<number> {
       return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
     case 'ETH':
       return ETH.getTokenBalance('ETH');
-    default:
-      throw new Error(`Unsupported symbol ${symbol}`);
-  }
-}
-
-export function getAddress(symbol: string): Address {
-  switch (symbol) {
-    case 'BCH': {
-      const bchAddress = BCH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-      const address: Address = {
-        symbol: 'BCH',
-        address: BCH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).cashAddress,
-      };
-      address.legacyAddress = bchAddress.legacyAddress;
-      address.cashAddress = bchAddress.cashAddress;
-      return address;
-    }
-    case 'BSV':
-      return {
-        symbol: 'BSV',
-        address: BSV.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address,
-      };
-    case 'BTC':
-      return { symbol: 'BTC', address: BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address };
-    case 'EOS':
-      return { symbol: 'EOS', address: USER_CONFIG.eosAccount! };
-    case 'ETH': {
-      const tmp = ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-      return { symbol: 'ETH', address: tmp.address };
-    }
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }
