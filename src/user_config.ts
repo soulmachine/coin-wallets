@@ -1,8 +1,6 @@
 export interface UserConfig {
   DFUSE_API_KEY?: string;
   eosAccount?: string;
-  eosPrivateKey?: string;
-  eosApiEndpoints?: string[];
   MNEMONIC?: string;
 }
 

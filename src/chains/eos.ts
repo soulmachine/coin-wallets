@@ -1,16 +1,33 @@
 import { createDfuseClient, DfuseClient } from '@dfuse/client';
 import { strict as assert } from 'assert';
+import * as bip39 from 'bip39';
 import { getTokenInfo } from 'eos-token-info';
 import { Api, JsonRpc, Serialize } from 'eosjs';
+import { isValidPublic, PublicKey } from 'eosjs-ecc';
 import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
+import hdkey from 'hdkey';
 import fetch, { Request, RequestInit, Response } from 'node-fetch';
 import { TextDecoder, TextEncoder } from 'text-encoding';
+import wif from 'wif';
 import { USER_CONFIG } from '../user_config';
 import { calcDecimals } from '../utils';
 
 Object.assign(global, { fetch: require('node-fetch') }); // eslint-disable-line global-require
 // Object.assign(global, { WebSocket: require('ws') });
 Object.assign(global, { WebSocket: {} });
+
+export function getAddressFromMnemonic(
+  mnemonic: string,
+): { address: string; publicKey: string; privateKey: string } {
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const node = hdkey.fromMasterSeed(seed).derive("m/44'/194'/0'/0/0");
+
+  const publicKey = new PublicKey(node.publicKey).toString();
+  const privateKey = wif.encode(128, node.privateKey, false);
+  assert.ok(isValidPublic(publicKey));
+
+  return { address: USER_CONFIG.eosAccount!, publicKey, privateKey };
+}
 
 // https://docs.dfuse.io/guides/eosio/tutorials/write-chain/
 function createCustomizedFetch(

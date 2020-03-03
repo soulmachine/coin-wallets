@@ -1,6 +1,5 @@
 import { strict as assert } from 'assert';
 import { getTokenInfo } from 'eos-token-info';
-import { isValidPrivate } from 'eosjs-ecc';
 import * as BCH from './chains/bch';
 import * as EOS from './chains/eos';
 import * as ETH from './chains/eth';
@@ -13,18 +12,10 @@ import { calcDecimals } from './utils';
  *
  * @param param0 UserConfig
  */
-export function init({
-  DFUSE_API_KEY = '',
-  eosAccount = '',
-  eosPrivateKey = '',
-  MNEMONIC = '',
-}: UserConfig): void {
+export function init({ DFUSE_API_KEY = '', eosAccount = '', MNEMONIC = '' }: UserConfig): void {
   if (eosAccount) {
     assert.ok(DFUSE_API_KEY);
-    assert.ok(eosPrivateKey);
     USER_CONFIG.eosAccount = eosAccount;
-    if (!isValidPrivate(eosPrivateKey)) throw Error(`Invalid EOS private key: ${eosPrivateKey}`);
-    USER_CONFIG.eosPrivateKey = eosPrivateKey;
   }
 
   if (DFUSE_API_KEY) {
@@ -65,9 +56,10 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
           `The quantity ${quantity} precision doesn't match with EOS decimals ${tokenInfo.decimals}`,
         );
       }
+      const privateKey = EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
       return EOS.transfer(
         USER_CONFIG.eosAccount!,
-        USER_CONFIG.eosPrivateKey!,
+        privateKey.privateKey,
         to.address,
         to.symbol,
         quantity,

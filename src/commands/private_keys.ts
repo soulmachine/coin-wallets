@@ -3,6 +3,7 @@ import yargs from 'yargs';
 import * as BCH from '../chains/bch';
 import * as BSV from '../chains/bsv';
 import * as BTC from '../chains/btc';
+import * as EOS from '../chains/eos';
 import * as ETH from '../chains/eth';
 import { init } from '../index';
 import { Address, PrivateKey } from '../pojo';
@@ -31,8 +32,13 @@ function getPrivateKey(symbol: string): PrivateKey {
       };
     case 'BTC':
       return { symbol: 'BTC', ...BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
-    case 'EOS':
-      return { symbol: 'EOS', address: USER_CONFIG.eosAccount!, privateKey: 'xxx' };
+    case 'EOS': {
+      const privateKey = { symbol: 'EOS', ...EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
+      Object.assign(privateKey, {
+        comment: 'Remember to register the publicKey to your EOS account',
+      });
+      return privateKey;
+    }
     case 'ETH': {
       return { symbol: 'ETH', ...ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
     }
