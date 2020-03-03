@@ -11,6 +11,10 @@ export interface Address {
   cashAddress?: string; // for BCH
 }
 
+export interface PrivateKey extends Address {
+  privateKey: string;
+}
+
 export const SYMBOLS_REQUIRE_MEMO = ['ATOM', 'EOS', 'XLM', 'XRP'];
 
 export const SYMBOLS_REQUIRE_PROTOCOL = ['USDT'];
