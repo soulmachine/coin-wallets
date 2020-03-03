@@ -7,6 +7,8 @@ export interface Address {
   address: string;
   memo?: string;
   protocol?: TokenProtocol;
+  legacyAddress?: string; // for BCH
+  cashAddress?: string; // for BCH
 }
 
 export const SYMBOLS_REQUIRE_MEMO = ['ATOM', 'EOS', 'XLM', 'XRP'];

@@ -7,12 +7,19 @@ function getAddress(node: any, network?: any): string {
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export function getBTCAddressFromMnemonic(
+export function getAddressFromMnemonic(
   mnemonic: string,
+  symbol: 'BCH' | 'BSV' | 'BTC' = 'BTC',
 ): { address: string; privateKey: string } {
   const seed = bip39.mnemonicToSeedSync(mnemonic);
   const node = bitcoin.bip32.fromSeed(seed);
-  const child1 = node.derivePath("m/44'/0'/0'/0/0");
+
+  const pathMap: { [key: string]: string } = {
+    BCH: "m/44'/145'/0'/0/0",
+    BSV: "m/44'/236'/0'/0/0",
+    BTC: "m/44'/0'/0'/0/0",
+  };
+  const child1 = node.derivePath(pathMap[symbol]);
 
   const address = getAddress(child1);
   const privateKey = child1.toWIF();

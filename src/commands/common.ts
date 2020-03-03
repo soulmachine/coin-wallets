@@ -12,4 +12,4 @@ export function readConfig(): UserConfig {
   return ENV as UserConfig;
 }
 
-export const SUPPORTED_SYMBOLS = ['EOS', 'ETH'];
+export const SUPPORTED_SYMBOLS = ['BCH', 'BSV', 'BTC', 'EOS', 'ETH'];

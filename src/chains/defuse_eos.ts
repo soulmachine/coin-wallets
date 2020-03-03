@@ -12,6 +12,7 @@ Object.assign(global, { fetch: require('node-fetch') }); // eslint-disable-line 
 // Object.assign(global, { WebSocket: require('ws') });
 Object.assign(global, { WebSocket: {} });
 
+// https://docs.dfuse.io/guides/eosio/tutorials/write-chain/
 function createCustomizedFetch(
   client: DfuseClient,
 ): (input: string | Request, init: RequestInit) => Promise<Response> {

@@ -3,9 +3,7 @@ import { getDefaultProvider, utils, Wallet } from 'ethers';
 import { TransactionRequest } from 'ethers/providers';
 import { USER_CONFIG } from '../user_config';
 
-export function getEthAddressFromMnemonic(
-  mnemonic: string,
-): { address: string; privateKey: string } {
+export function getAddressFromMnemonic(mnemonic: string): { address: string; privateKey: string } {
   const wallet = Wallet.fromMnemonic(mnemonic);
 
   return { address: wallet.address, privateKey: wallet.privateKey };
