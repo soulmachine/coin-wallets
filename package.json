@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@dfuse/client": "^0.3.8",
+    "axios": "^0.19.2",
     "bchaddrjs": "^0.4.5",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.7",

@@ -89,6 +89,8 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
  */
 export async function queryBalance(symbol: string): Promise<number> {
   switch (symbol) {
+    case 'BCH':
+      return BCH.queryBalance();
     case 'EOS':
       return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
     case 'ETH':
