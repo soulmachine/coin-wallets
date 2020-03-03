@@ -4,7 +4,7 @@ import { isValidPrivate } from 'eosjs-ecc';
 import * as BCH from './chains/bch';
 import * as BSV from './chains/bsv';
 import * as BTC from './chains/btc';
-import { getCurrencyBalance, transfer } from './chains/defuse_eos';
+import * as EOS from './chains/eos';
 import * as ETH from './chains/eth';
 import { Address, SYMBOLS_REQUIRE_MEMO, SYMBOLS_REQUIRE_PROTOCOL } from './pojo';
 import { UserConfig, USER_CONFIG } from './user_config';
@@ -65,7 +65,7 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
           `The quantity ${quantity} precision doesn't match with EOS decimals ${tokenInfo.decimals}`,
         );
       }
-      return transfer(
+      return EOS.transfer(
         USER_CONFIG.eosAccount!,
         USER_CONFIG.eosPrivateKey!,
         to.address,
@@ -90,7 +90,7 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
 export async function queryBalance(symbol: string): Promise<number> {
   switch (symbol) {
     case 'EOS':
-      return getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
+      return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
     case 'ETH':
       return ETH.getTokenBalance('ETH');
     default:
