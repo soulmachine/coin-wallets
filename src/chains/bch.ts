@@ -8,7 +8,7 @@ const bchaddr = require('bchaddrjs');
 const bitcore = require('bitcore-lib-cash');
 
 const BCH_DECIMALS = 8;
-const DUST_LIMIT = 600; // 600 Satoshi
+const DUST_LIMIT = 546; // 546 Satoshi
 
 // eslint-disable-next-line import/prefer-default-export
 export function getAddressFromMnemonic(
@@ -59,9 +59,6 @@ export async function send(to: string, quantity: string): Promise<{ txid: string
   }
 
   const address = getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-  if (to === address.legacyAddress || to === address.cashAddress) {
-    return new Error(`Sending to yourself is meaningless`);
-  }
 
   const utxoResponse = await Axios.get(
     `https://rest.bitcoin.com/v2/address/utxo/${address.legacyAddress}`,
@@ -101,19 +98,20 @@ export async function send(to: string, quantity: string): Promise<{ txid: string
     throw new Error('Insufficient balance.');
   }
 
+  let transaction = new bitcore.Transaction().from(utxosData.utxos);
+  if (balance - quantitySat - fee2 < DUST_LIMIT) {
+    transaction = transaction.to(to, quantitySat);
+  } else if (to === address.legacyAddress || to === address.cashAddress) {
+    // send to yourself
+    transaction = transaction.to(address.cashAddress, balance - fee1);
+  } else {
+    transaction = transaction
+      .to(to, quantitySat)
+      .to(address.cashAddress, balance - quantitySat - fee2);
+  }
   const privateKey = bitcore.PrivateKey.fromWIF(address.privateKey);
-  const transaction =
-    balance - quantitySat - fee2 >= DUST_LIMIT
-      ? new bitcore.Transaction()
-          .from(utxosData.utxos)
-          .to(to, quantitySat)
-          .to(address.cashAddress, balance - quantitySat - fee2)
-          .change(address.cashAddress)
-          .sign(privateKey)
-      : new bitcore.Transaction()
-          .from(utxosData.utxos)
-          .to(to, quantitySat)
-          .sign(privateKey);
+  transaction = transaction.sign(privateKey);
+  // console.info(transaction.getFee());
 
   const rawTransaction = transaction.checkedSerialize() as string;
 
