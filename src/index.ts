@@ -1,6 +1,8 @@
 import { strict as assert } from 'assert';
 import { getTokenInfo } from 'eos-token-info';
 import * as BCH from './chains/bch';
+import * as BSV from './chains/bsv';
+import * as BTC from './chains/btc';
 import * as EOS from './chains/eos';
 import * as ETH from './chains/eth';
 import { Address, SYMBOLS_REQUIRE_MEMO, SYMBOLS_REQUIRE_PROTOCOL } from './pojo';
@@ -83,6 +85,10 @@ export async function queryBalance(symbol: string): Promise<number> {
   switch (symbol) {
     case 'BCH':
       return BCH.queryBalance();
+    case 'BSV':
+      return BSV.queryBalance();
+    case 'BTC':
+      return BTC.queryBalance();
     case 'EOS':
       return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
     case 'ETH':

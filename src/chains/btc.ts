@@ -1,5 +1,9 @@
+import { strict as assert } from 'assert';
+import Axios from 'axios';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
+import bitcore from 'bitcore-lib';
+import { USER_CONFIG } from '../user_config';
 
 // copied from https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts#L7
 function getAddress(node: any, network?: any): string {
@@ -24,5 +28,18 @@ export function getAddressFromMnemonic(
   const address = getAddress(child1);
   const privateKey = child1.toWIF();
 
+  assert.equal(address, new bitcore.PrivateKey(privateKey).toAddress().toString());
+
   return { address, privateKey };
+}
+
+export async function queryBalance(): Promise<number> {
+  assert.ok(USER_CONFIG.MNEMONIC);
+
+  const address = getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
+
+  const response = await Axios.get(`https://insight.bitpay.com/api/addr/${address.address}`);
+
+  assert.equal(response.status, 200);
+  return response.data.balance;
 }
