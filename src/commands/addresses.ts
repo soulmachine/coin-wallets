@@ -15,7 +15,7 @@ function getAddress(symbol: string): Address {
     case 'BCH': {
       const bchAddress = BCH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
       const address: Address = {
-        symbol: 'BCH',
+        symbol,
         address: BCH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).cashAddress,
       };
       address.legacyAddress = bchAddress.legacyAddress;
@@ -24,17 +24,23 @@ function getAddress(symbol: string): Address {
     }
     case 'BSV':
       return {
-        symbol: 'BSV',
+        symbol,
         address: BSV.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address,
       };
     case 'BTC':
-      return { symbol: 'BTC', address: BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address };
+      return { symbol, address: BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address };
     case 'EOS':
-      return { symbol: 'EOS', address: USER_CONFIG.eosAccount! };
-    case 'ETH': {
-      const tmp = ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-      return { symbol: 'ETH', address: tmp.address };
-    }
+      return { symbol, address: USER_CONFIG.eosAccount! };
+    case 'ETC':
+      return {
+        symbol,
+        address: ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!, 'ETC').address,
+      };
+    case 'ETH':
+      return {
+        symbol,
+        address: ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address,
+      };
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }

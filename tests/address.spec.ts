@@ -36,6 +36,12 @@ test('EOS PublicKey', async () => {
   expect(privateKey).toBe('5Ju73P5m4Trczbkv2pEykiCoYn3qP36BuuuuDt8zL4skn2zTNci');
 });
 
+test('ETC Address', async () => {
+  const { address } = ETH.getAddressFromMnemonic(mnemonic, 'ETC');
+
+  expect(address).toBe('0xf11a992d061Bd40CD650ce89442D410FC08C4ec5');
+});
+
 test('ETH Address', async () => {
   const { address } = ETH.getAddressFromMnemonic(mnemonic);
 

@@ -22,3 +22,13 @@ console.info(await send({ symbol: 'EOS', address: 'EOS account', memo: 'EOS memo
 ```bash
 npx coin-wallets balance
 ```
+
+## Supported Coins and Tokens
+
+- BTC
+- BCH
+- BSV
+- BTC
+- EOS
+- ETC
+- ETH

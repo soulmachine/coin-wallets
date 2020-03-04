@@ -3,27 +3,39 @@ import { getDefaultProvider, utils, Wallet } from 'ethers';
 import { TransactionRequest } from 'ethers/providers';
 import { USER_CONFIG } from '../user_config';
 
-export function getAddressFromMnemonic(mnemonic: string): { address: string; privateKey: string } {
-  const wallet = Wallet.fromMnemonic(mnemonic);
+function getWallet(mnemonic: string, chain: 'ETH' | 'ETC' = 'ETH'): Wallet {
+  const network = chain === 'ETH' ? 'mainnet' : 'classic';
+  const provider = getDefaultProvider(utils.getNetwork(network));
+  return Wallet.fromMnemonic(
+    mnemonic,
+    chain === 'ETC' ? "m/44'/61'/0'/0/0" : "m/44'/60'/0'/0/0",
+  ).connect(provider);
+}
+
+export function getAddressFromMnemonic(
+  mnemonic: string,
+  chain: 'ETH' | 'ETC' = 'ETH',
+): { address: string; privateKey: string } {
+  const wallet = getWallet(mnemonic, chain);
 
   return { address: wallet.address, privateKey: wallet.privateKey };
 }
 
-export async function getTokenBalance(symbol: string): Promise<number> {
-  assert.equal(symbol, 'ETH'); // TODO: ERC20 token
+export async function getTokenBalance(symbol: 'ETH' | 'ETC' = 'ETH'): Promise<number> {
+  assert.ok(symbol === 'ETH' || symbol === 'ETC'); // TODO: ERC20 token
   assert.ok(USER_CONFIG.MNEMONIC);
 
-  const wallet = Wallet.fromMnemonic(USER_CONFIG.MNEMONIC!).connect(getDefaultProvider());
+  const wallet = getWallet(USER_CONFIG.MNEMONIC!, symbol);
 
   return parseFloat(utils.formatEther(await wallet.getBalance()));
 }
 
 export async function send(
-  symbol: string,
+  symbol: 'ETH' | 'ETC' = 'ETH',
   to: string,
   quantity: string,
 ): Promise<{ [key: string]: any } | Error> {
-  assert.equal(symbol, 'ETH'); // TODO: ERC20 token
+  assert.ok(symbol === 'ETH' || symbol === 'ETC'); // TODO: ERC20 token
   assert.ok(USER_CONFIG.MNEMONIC);
 
   const balance = await getTokenBalance('ETH');
@@ -33,7 +45,7 @@ export async function send(
     );
   }
 
-  const wallet = Wallet.fromMnemonic(USER_CONFIG.MNEMONIC!).connect(getDefaultProvider());
+  const wallet = getWallet(USER_CONFIG.MNEMONIC!, symbol);
 
   // const nonce = await wallet.getTransactionCount();
   // console.info(nonce);

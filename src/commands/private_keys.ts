@@ -16,7 +16,7 @@ function getPrivateKey(symbol: string): PrivateKey {
     case 'BCH': {
       const bchAddress = BCH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
       const privateKey: PrivateKey = {
-        symbol: 'BCH',
+        symbol,
         address: bchAddress.cashAddress,
         privateKey: bchAddress.privateKey,
       };
@@ -27,20 +27,23 @@ function getPrivateKey(symbol: string): PrivateKey {
     }
     case 'BSV':
       return {
-        symbol: 'BSV',
+        symbol,
         ...BSV.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!),
       };
     case 'BTC':
-      return { symbol: 'BTC', ...BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
+      return { symbol, ...BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
     case 'EOS': {
-      const privateKey = { symbol: 'EOS', ...EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
+      const privateKey = { symbol, ...EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
       Object.assign(privateKey, {
         comment: 'Remember to register the publicKey to your EOS account',
       });
       return privateKey;
     }
+    case 'ETC': {
+      return { symbol, ...ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!, 'ETC') };
+    }
     case 'ETH': {
-      return { symbol: 'ETH', ...ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
+      return { symbol, ...ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
     }
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
