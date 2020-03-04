@@ -53,6 +53,8 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
       return BCH.send(to.address, quantity);
     case 'BSV':
       return BSV.send(to.address, quantity);
+    case 'BTC':
+      return BTC.send(to.address, quantity);
     case 'EOS': {
       const tokenInfo = getTokenInfo(to.symbol);
       if (calcDecimals(quantity) !== tokenInfo.decimals) {
