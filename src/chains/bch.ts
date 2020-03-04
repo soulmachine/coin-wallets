@@ -33,7 +33,7 @@ export async function queryBalance(): Promise<number> {
   );
 
   assert.equal(response.status, 200);
-  return parseFloat(response.data.balance);
+  return response.data.balance + response.data.unconfirmedBalance;
 }
 
 // copied from https://github.com/bitcoincashjs/bchwallet1a/blob/master/part7/src/wallet.js
