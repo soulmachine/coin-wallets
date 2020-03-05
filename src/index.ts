@@ -7,7 +7,7 @@ import * as EOS from './chains/eos';
 import * as ETH from './chains/eth';
 import { Address, SYMBOLS_REQUIRE_MEMO, SYMBOLS_REQUIRE_PROTOCOL } from './pojo';
 import { UserConfig, USER_CONFIG } from './user_config';
-import { calcDecimals } from './utils';
+import { calcDecimals, padDecimals } from './utils';
 
 /**
  * Initialize.
@@ -71,10 +71,15 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
       return BTC.send(to.address, quantity);
     case 'EOS': {
       const tokenInfo = getTokenInfo(to.symbol);
-      if (calcDecimals(quantity) !== tokenInfo.decimals) {
+      const decimals = calcDecimals(quantity);
+      if (decimals > tokenInfo.decimals) {
         return new Error(
-          `The quantity ${quantity} precision doesn't match with EOS decimals ${tokenInfo.decimals}`,
+          `The quantity ${quantity} precision is ${decimals}, which is greater than EOS decimals ${tokenInfo.decimals}`,
         );
+      }
+      if (decimals < tokenInfo.decimals) {
+        // eslint-disable-next-line no-param-reassign
+        quantity = padDecimals(quantity, tokenInfo.decimals);
       }
       const privateKey = EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
       return EOS.transfer(
