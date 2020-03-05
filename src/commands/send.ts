@@ -42,7 +42,7 @@ const commandModule: yargs.CommandModule = {
     };
 
     const userConfig = readConfig();
-    init(userConfig);
+    await init(userConfig);
 
     console.info(
       await send(

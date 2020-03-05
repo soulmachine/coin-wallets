@@ -59,13 +59,13 @@ const commandModule: yargs.CommandModule = {
         demandOption: false,
       },
     }),
-  handler: argv => {
+  handler: async argv => {
     const params = (argv as any) as {
       symbol: string;
     };
 
     const userConfig = readConfig();
-    init(userConfig);
+    await init(userConfig);
 
     const symbols = params.symbol ? [params.symbol] : SUPPORTED_SYMBOLS;
 

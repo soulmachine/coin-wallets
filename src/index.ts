@@ -14,17 +14,31 @@ import { calcDecimals } from './utils';
  *
  * @param param0 UserConfig
  */
-export function init({ DFUSE_API_KEY = '', eosAccount = '', MNEMONIC = '' }: UserConfig): void {
-  if (eosAccount) {
-    assert.ok(DFUSE_API_KEY);
-    USER_CONFIG.eosAccount = eosAccount;
-  }
+export async function init({
+  DFUSE_API_KEY = '',
+  eosAccount = '',
+  MNEMONIC = '',
+}: UserConfig): Promise<void> {
+  assert.ok(MNEMONIC, 'MNEMONIC is empty!');
+  USER_CONFIG.MNEMONIC = MNEMONIC;
 
   if (DFUSE_API_KEY) {
     USER_CONFIG.DFUSE_API_KEY = DFUSE_API_KEY;
-  }
 
-  if (MNEMONIC) USER_CONFIG.MNEMONIC = MNEMONIC;
+    const { publicKey } = EOS.getAddressFromMnemonic(MNEMONIC);
+    const accounts = await EOS.getAccounts(publicKey);
+
+    if (eosAccount) {
+      assert.ok(
+        accounts.includes(eosAccount),
+        `Please register the publicKey ${publicKey} to your EOS account ${eosAccount}`,
+      );
+
+      USER_CONFIG.eosAccount = eosAccount;
+    } else {
+      [USER_CONFIG.eosAccount] = accounts;
+    }
+  }
 }
 
 /**

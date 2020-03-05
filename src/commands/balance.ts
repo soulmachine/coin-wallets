@@ -23,7 +23,7 @@ const commandModule: yargs.CommandModule = {
     };
 
     const userConfig = readConfig();
-    init(userConfig);
+    await init(userConfig);
 
     const symbols = params.symbol ? [params.symbol] : SUPPORTED_SYMBOLS;
 

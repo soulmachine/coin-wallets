@@ -51,6 +51,21 @@ function createCustomizedFetch(
   return customizedFetch;
 }
 
+export async function getAccounts(publicKey: string): Promise<string[]> {
+  const client = createDfuseClient({
+    apiKey: USER_CONFIG.DFUSE_API_KEY!,
+    network: 'mainnet',
+  });
+
+  const response = await client.stateKeyAccounts(publicKey).catch((e: Error) => {
+    return e;
+  });
+  if (response instanceof Error) return [];
+
+  client.release();
+  return response.account_names;
+}
+
 export async function sendTransaction(
   actions: Serialize.Action[],
   privateKey: string,

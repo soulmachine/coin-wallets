@@ -32,19 +32,12 @@ function getPrivateKey(symbol: string): PrivateKey {
       };
     case 'BTC':
       return { symbol, ...BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
-    case 'EOS': {
-      const privateKey = { symbol, ...EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
-      Object.assign(privateKey, {
-        comment: 'Remember to register the publicKey to your EOS account',
-      });
-      return privateKey;
-    }
-    case 'ETC': {
+    case 'EOS':
+      return { symbol, ...EOS.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
+    case 'ETC':
       return { symbol, ...ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!, 'ETC') };
-    }
-    case 'ETH': {
+    case 'ETH':
       return { symbol, ...ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!) };
-    }
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }
@@ -63,13 +56,13 @@ const commandModule: yargs.CommandModule = {
         demandOption: false,
       },
     }),
-  handler: argv => {
+  handler: async argv => {
     const params = (argv as any) as {
       symbol: string;
     };
 
     const userConfig = readConfig();
-    init(userConfig);
+    await init(userConfig);
 
     const symbols = params.symbol ? [params.symbol] : SUPPORTED_SYMBOLS;
 
