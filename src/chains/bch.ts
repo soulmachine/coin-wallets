@@ -41,12 +41,14 @@ function estimateTransactionBytes(inputCount: number, outputCount: number): numb
   return inputCount * 149 + outputCount * 34 + 10;
 }
 
-export async function send(to: string, quantity: string): Promise<{ txid: string } | Error> {
+export async function send(toAddress: string, quantity: string): Promise<{ txid: string } | Error> {
   assert.ok(USER_CONFIG.MNEMONIC);
 
-  if (!bchaddr.isValidAddress(to)) {
-    return new Error(`The destination address ${to} is invalid`);
+  if (!bchaddr.isValidAddress(toAddress)) {
+    return new Error(`The destination address ${toAddress} is invalid`);
   }
+  if (!bchaddr.isCashAddress(toAddress)) toAddress = bchaddr.toCashAddress(toAddress); // eslint-disable-line no-param-reassign
+
   if (calcDecimals(quantity) > BCH_DECIMALS) {
     return new Error(
       `The quantity ${quantity} precision is greater than BCH decimals ${BCH_DECIMALS}`,
@@ -100,13 +102,13 @@ export async function send(to: string, quantity: string): Promise<{ txid: string
 
   let transaction = new bitcore.Transaction().from(utxosData.utxos);
   if (balance - quantitySat - fee2 < DUST_LIMIT) {
-    transaction = transaction.to(to, quantitySat);
-  } else if (to === address.legacyAddress || to === address.cashAddress) {
+    transaction = transaction.to(toAddress, quantitySat);
+  } else if (toAddress === address.cashAddress) {
     // send to yourself
     transaction = transaction.to(address.cashAddress, balance - fee1);
   } else {
     transaction = transaction
-      .to(to, quantitySat)
+      .to(toAddress, quantitySat)
       .to(address.cashAddress, balance - quantitySat - fee2);
   }
   const privateKey = bitcore.PrivateKey.fromWIF(address.privateKey);
