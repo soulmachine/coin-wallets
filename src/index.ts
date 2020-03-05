@@ -72,6 +72,7 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
         to.memo,
       );
     }
+    case 'ETC':
     case 'ETH':
       return ETH.send(to.symbol, to.address, quantity);
     default:
@@ -95,8 +96,9 @@ export async function queryBalance(symbol: string): Promise<number> {
       return BTC.queryBalance();
     case 'EOS':
       return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
+    case 'ETC':
     case 'ETH':
-      return ETH.getTokenBalance('ETH');
+      return ETH.getTokenBalance(symbol);
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }
