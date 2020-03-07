@@ -1,6 +1,7 @@
 import * as BCH from '../src/chains/bch';
 import * as BSV from '../src/chains/bsv';
 import * as BTC from '../src/chains/btc';
+import * as EOS from '../src/chains/eos';
 import * as ETH from '../src/chains/eth';
 import { readConfig } from '../src/commands/common';
 import { init } from '../src/index';
@@ -25,11 +26,11 @@ test('getBalance(BCH)', async () => {
 });
 
 test('getBalance(BSV)', async () => {
-  // Huobi BCH hot wallet address
+  // Huobi BSV hot wallet address
   const balanceHuobi = await BSV.getBalance('14DNaiu2GFnWDBf5Tf7tatmiiAR2vvYCyj');
   expect(balanceHuobi).toBeGreaterThan(1);
 
-  // OKEx BCH hot wallet address
+  // OKEx BSV hot wallet address
   const balanceOKEx = await BSV.getBalance('1LPzLSMypuAuRivjNp4zQW1CNHk9fpmXRE');
   expect(balanceOKEx).toBeGreaterThan(1);
 });
@@ -66,6 +67,20 @@ test('getBalance(ETC)', async () => {
   // Huobi ETC hot wallet address
   const balanceHuobi = await ETH.getBalance('ETC', '0x6667ed6cb6e7accc4004e8844dbdd0e72d58c31c');
   expect(balanceHuobi).toBeGreaterThan(1);
+});
+
+test('getBalance(EOS)', async () => {
+  // Binance EOS hot wallet address
+  const balanceBinance = await EOS.getCurrencyBalance('binancecleos', 'EOS');
+  expect(balanceBinance).toBeGreaterThan(1);
+
+  // Huobi EOS hot wallet address
+  const balanceHuobi = await EOS.getCurrencyBalance('huobideposit', 'EOS');
+  expect(balanceHuobi).toBeGreaterThan(1);
+
+  // OKEx EOS hot wallet address
+  const balanceOKEx = await EOS.getCurrencyBalance('okbtothemoon', 'EOS');
+  expect(balanceOKEx).toBeGreaterThan(1);
 });
 
 test('getERC20TokenBalance(USDT)', async () => {
