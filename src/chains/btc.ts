@@ -37,12 +37,8 @@ export function getAddressFromMnemonic(
   return { address, privateKey };
 }
 
-export async function queryBalance(): Promise<number> {
-  assert.ok(USER_CONFIG.MNEMONIC);
-
-  const address = getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-
-  const response = await Axios.get(`https://insight.bitpay.com/api/addr/${address.address}`);
+export async function getBalance(address: string): Promise<number> {
+  const response = await Axios.get(`https://insight.bitpay.com/api/addr/${address}`);
 
   assert.equal(response.status, 200);
   return response.data.balance + response.data.unconfirmedBalance;

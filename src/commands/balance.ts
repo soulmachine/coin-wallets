@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import yargs from 'yargs';
-import { init, queryBalance } from '../index';
+import { getBalance, init } from '../index';
 import { stringifyOrder } from '../utils';
 import { readConfig, SUPPORTED_SYMBOLS } from './common';
 
@@ -30,7 +30,7 @@ const commandModule: yargs.CommandModule = {
     const result: { [key: string]: number } = {};
     for (let i = 0; i < symbols.length; i += 1) {
       const symbol = symbols[i];
-      const balance = await queryBalance(symbol); // eslint-disable-line no-await-in-loop
+      const balance = await getBalance(symbol); // eslint-disable-line no-await-in-loop
       result[symbol] = balance;
     }
     console.info(stringifyOrder(result));

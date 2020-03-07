@@ -105,14 +105,14 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
  * @param symbol The currency symbol
  * @returns The available balance, or Error
  */
-export async function queryBalance(symbol: string): Promise<number> {
+export async function getBalance(symbol: string): Promise<number> {
   switch (symbol) {
     case 'BCH':
-      return BCH.queryBalance();
+      return BCH.getBalance(BCH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).cashAddress);
     case 'BSV':
-      return BSV.queryBalance();
+      return BSV.getBalance(BSV.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address);
     case 'BTC':
-      return BTC.queryBalance();
+      return BTC.getBalance(BTC.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address);
     case 'EOS':
       return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
     case 'ETC':

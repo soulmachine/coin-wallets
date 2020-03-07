@@ -22,13 +22,9 @@ export function getAddressFromMnemonic(mnemonic: string): { address: string; pri
   return { address: address.toString(), privateKey: child.privateKey.toWIF() };
 }
 
-export async function queryBalance(): Promise<number> {
-  assert.ok(USER_CONFIG.MNEMONIC);
-
-  const address = getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-
+export async function getBalance(address: string): Promise<number> {
   const response = await Axios.get(
-    `https://api.whatsonchain.com/v1/bsv/main/address/${address.address}/balance`,
+    `https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`,
   );
 
   assert.equal(response.status, 200);

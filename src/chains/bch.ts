@@ -23,14 +23,13 @@ export function getAddressFromMnemonic(
   return { legacyAddress: address.address, cashAddress, privateKey: address.privateKey };
 }
 
-export async function queryBalance(): Promise<number> {
-  assert.ok(USER_CONFIG.MNEMONIC);
+export async function getBalance(address: string): Promise<number> {
+  if (!bchaddr.isValidAddress(address)) {
+    throw new Error(`The destination address ${address} is invalid`);
+  }
+  if (!bchaddr.isCashAddress(address)) address = bchaddr.toCashAddress(address); // eslint-disable-line no-param-reassign
 
-  const address = getAddressFromMnemonic(USER_CONFIG.MNEMONIC!);
-
-  const response = await Axios.get(
-    `https://rest.bitcoin.com/v2/address/details/${address.legacyAddress}`,
-  );
+  const response = await Axios.get(`https://rest.bitcoin.com/v2/address/details/${address}`);
 
   assert.equal(response.status, 200);
   return response.data.balance + response.data.unconfirmedBalance;
