@@ -3,15 +3,20 @@ import { getTokenInfo } from 'erc20-token-list';
 import { Contract, getDefaultProvider, providers, utils, Wallet } from 'ethers';
 import { TransactionRequest } from 'ethers/providers';
 import { USER_CONFIG } from '../user_config';
-import { calcDecimals, detectPlatformFromAddress } from '../utils';
+import { calcDecimals, detectPlatformFromAddress, isETHAddress } from '../utils';
 
 const ETH_DECIMALS = 18;
 
-function getWallet(mnemonic: string, chain: 'ETH' | 'ETC' = 'ETH'): Wallet {
+function getProvider(chain: 'ETH' | 'ETC' = 'ETH'): providers.BaseProvider {
   const provider =
     chain === 'ETH'
       ? getDefaultProvider()
       : new providers.JsonRpcProvider('https://www.ethercluster.com/etc', 'classic');
+  return provider;
+}
+
+function getWallet(mnemonic: string, chain: 'ETH' | 'ETC' = 'ETH'): Wallet {
+  const provider = getProvider(chain);
 
   return Wallet.fromMnemonic(
     mnemonic,
@@ -28,16 +33,16 @@ export function getAddressFromMnemonic(
   return { address: wallet.address, privateKey: wallet.privateKey };
 }
 
-export async function getTokenBalance(symbol: 'ETH' | 'ETC' = 'ETH'): Promise<number> {
+export async function getBalance(symbol: 'ETH' | 'ETC', address: string): Promise<number> {
   assert.ok(symbol === 'ETH' || symbol === 'ETC'); // TODO: ERC20 token
-  assert.ok(USER_CONFIG.MNEMONIC);
+  assert.ok(isETHAddress(address));
 
-  const wallet = getWallet(USER_CONFIG.MNEMONIC!, symbol);
+  const provider = getProvider(symbol);
 
-  return parseFloat(utils.formatEther(await wallet.getBalance()));
+  return parseFloat(utils.formatEther(await provider.getBalance(address)));
 }
 
-export async function getERC20TokenBalance(address: string, symbol: string): Promise<number> {
+export async function getERC20TokenBalance(symbol: string, address: string): Promise<number> {
   assert.ok(symbol);
   const tokenInfo = getTokenInfo(symbol);
   if (tokenInfo === undefined) {
@@ -50,8 +55,6 @@ export async function getERC20TokenBalance(address: string, symbol: string): Pro
   const contractAbiFragment = [
     {
       name: 'balanceOf',
-      constant: true,
-      payable: false,
       type: 'function',
       inputs: [
         {
@@ -65,11 +68,13 @@ export async function getERC20TokenBalance(address: string, symbol: string): Pro
           type: 'uint256',
         },
       ],
+      constant: true,
+      payable: false,
     },
   ];
 
-  const wallet = getWallet(USER_CONFIG.MNEMONIC!);
-  const contract = new Contract(tokenInfo.address, contractAbiFragment, wallet);
+  const provider = getProvider('ETH');
+  const contract = new Contract(tokenInfo.address, contractAbiFragment, provider);
 
   const balance: utils.BigNumber = await contract.balanceOf(address);
 
@@ -91,14 +96,15 @@ export async function send(
     );
   }
 
-  const balance = await getTokenBalance(symbol);
+  const wallet = getWallet(USER_CONFIG.MNEMONIC!, symbol);
+
+  const balance = await getBalance(symbol, wallet.address);
   if (parseFloat(quantity) > balance) {
     return new Error(
       `Insufficient balance, quantity ${quantity} is greater than balance ${balance}`,
     );
   }
 
-  const wallet = getWallet(USER_CONFIG.MNEMONIC!, symbol);
   const gasPriceMap = {
     Slow: '300000000', // 0.3 Gwei
     Average: '1000000000', // 1 Gwei

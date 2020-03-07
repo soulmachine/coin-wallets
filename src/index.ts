@@ -117,7 +117,7 @@ export async function queryBalance(symbol: string): Promise<number> {
       return EOS.getCurrencyBalance(USER_CONFIG.eosAccount!, symbol);
     case 'ETC':
     case 'ETH':
-      return ETH.getTokenBalance(symbol);
+      return ETH.getBalance(symbol, ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address);
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }
