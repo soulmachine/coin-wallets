@@ -1,8 +1,9 @@
 import { strict as assert } from 'assert';
-import { getDefaultProvider, providers, utils, Wallet } from 'ethers';
+import { getTokenInfo } from 'erc20-token-list';
+import { Contract, getDefaultProvider, providers, utils, Wallet } from 'ethers';
 import { TransactionRequest } from 'ethers/providers';
 import { USER_CONFIG } from '../user_config';
-import { calcDecimals } from '../utils';
+import { calcDecimals, detectPlatformFromAddress } from '../utils';
 
 const ETH_DECIMALS = 18;
 
@@ -34,6 +35,45 @@ export async function getTokenBalance(symbol: 'ETH' | 'ETC' = 'ETH'): Promise<nu
   const wallet = getWallet(USER_CONFIG.MNEMONIC!, symbol);
 
   return parseFloat(utils.formatEther(await wallet.getBalance()));
+}
+
+export async function getERC20TokenBalance(address: string, symbol: string): Promise<number> {
+  assert.ok(symbol);
+  const tokenInfo = getTokenInfo(symbol);
+  if (tokenInfo === undefined) {
+    throw new Error(`Can NOT find ERC20 contract address of ${symbol}`);
+  }
+  if (detectPlatformFromAddress(address) !== 'ERC20') {
+    throw new Error(`${address} is NOT a valid ETH address`);
+  }
+
+  const contractAbiFragment = [
+    {
+      name: 'balanceOf',
+      constant: true,
+      payable: false,
+      type: 'function',
+      inputs: [
+        {
+          name: '_owner',
+          type: 'address',
+        },
+      ],
+      outputs: [
+        {
+          name: 'balance',
+          type: 'uint256',
+        },
+      ],
+    },
+  ];
+
+  const wallet = getWallet(USER_CONFIG.MNEMONIC!);
+  const contract = new Contract(tokenInfo.address, contractAbiFragment, wallet);
+
+  const balance: utils.BigNumber = await contract.balanceOf(address);
+
+  return parseFloat(utils.formatUnits(balance, tokenInfo.decimals));
 }
 
 export async function send(
