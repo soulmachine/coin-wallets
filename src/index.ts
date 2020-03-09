@@ -5,9 +5,9 @@ import * as BSV from './chains/bsv';
 import * as BTC from './chains/btc';
 import * as EOS from './chains/eos';
 import * as ETH from './chains/eth';
-import { Address, SYMBOLS_REQUIRE_MEMO, SYMBOLS_REQUIRE_PROTOCOL } from './pojo';
+import { SYMBOLS_REQUIRE_MEMO, SYMBOL_PROTOCOLS } from './pojo';
 import { UserConfig, USER_CONFIG } from './user_config';
-import { calcDecimals, padDecimals } from './utils';
+import { calcDecimals, detectPlatformFromAddress, padDecimals } from './utils';
 
 /**
  * Initialize.
@@ -49,33 +49,48 @@ export async function init({
 /**
  * Send tokens.
  *
- * @param to  The destination address
- * @param amount How many to send
+ * @param symbol The currency symbol
+ * @param address  The destination address
+ * @param quantity How many to send
+ * @param memo The, required by EOS, XRP, XMR, etc.
  * @return The transaction object or Error
  */
-export async function send(to: Address, quantity: string): Promise<{ [key: string]: any } | Error> {
+export async function send(
+  symbol: string,
+  address: string,
+  quantity: string,
+  memo?: string,
+): Promise<{ [key: string]: any } | Error> {
   if (Number.isNaN(Number(quantity))) {
     return new Error(`${quantity} is not a number`);
   }
   if (parseFloat(quantity) <= 0) {
     return new Error(`The quantity ${quantity} is not greater than 0`);
   }
-  if (SYMBOLS_REQUIRE_MEMO.includes(to.symbol) && !to.memo) {
-    throw new Error(`memo is missing in ${JSON.stringify(to)}`);
-  }
-  if (SYMBOLS_REQUIRE_PROTOCOL.includes(to.symbol) && !to.protocol) {
-    throw new Error(`protocol is missing in ${JSON.stringify(to)}`);
+  if (SYMBOLS_REQUIRE_MEMO.includes(symbol) && !memo) {
+    throw new Error(`memo is missing for symbol ${symbol}`);
   }
 
-  switch (to.symbol) {
+  let protocol: string | undefined;
+  if (symbol in SYMBOL_PROTOCOLS) {
+    protocol = detectPlatformFromAddress(address);
+    if (protocol === undefined) {
+      throw new Error(`Failed to detect protocol the ${symbol} address ${address}`);
+    }
+    if (!SYMBOL_PROTOCOLS[symbol].includes(protocol)) {
+      throw new Error(`The protocol ${protocol} of ${symbol} is not supported yet`);
+    }
+  }
+
+  switch (symbol) {
     case 'BCH':
-      return BCH.send(to.address, quantity);
+      return BCH.send(address, quantity);
     case 'BSV':
-      return BSV.send(to.address, quantity);
+      return BSV.send(address, quantity);
     case 'BTC':
-      return BTC.send(to.address, quantity);
+      return BTC.send(address, quantity);
     case 'EOS': {
-      const tokenInfo = getTokenInfo(to.symbol);
+      const tokenInfo = getTokenInfo(symbol);
       const decimals = calcDecimals(quantity);
       if (decimals > tokenInfo.decimals) {
         return new Error(
@@ -90,17 +105,26 @@ export async function send(to: Address, quantity: string): Promise<{ [key: strin
       return EOS.transfer(
         USER_CONFIG.eosAccount!,
         privateKey.privateKey,
-        to.address,
-        to.symbol,
+        address,
+        symbol,
         quantity,
-        to.memo,
+        memo,
       );
     }
     case 'ETC':
     case 'ETH':
-      return ETH.send(to.symbol, to.address, quantity);
+      return ETH.send(symbol as 'ETH' | 'ETC', address, quantity);
+    case 'USDT': {
+      assert.ok(protocol);
+      switch (protocol!) {
+        case 'ERC20':
+          return ETH.sendERC20Token('USDT', address, quantity);
+        default:
+          throw new Error(`USDT ${protocol!} not supported yet`);
+      }
+    }
     default:
-      throw new Error(`Unsupported symbol ${to.symbol}`);
+      throw new Error(`Unsupported symbol ${symbol}`);
   }
 }
 
@@ -123,6 +147,13 @@ export async function getBalance(symbol: string): Promise<number> {
     case 'ETC':
     case 'ETH':
       return ETH.getBalance(symbol, ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address);
+    case 'USDT': {
+      // TODO: balance = OMNI+ERC20+TRC20
+      return ETH.getERC20TokenBalance(
+        'USDT',
+        ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address,
+      );
+    }
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }

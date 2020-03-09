@@ -17,7 +17,9 @@ export interface PrivateKey extends Address {
 
 export const SYMBOLS_REQUIRE_MEMO = ['ATOM', 'EOS', 'XLM', 'XRP'];
 
-export const SYMBOLS_REQUIRE_PROTOCOL = ['USDT'];
+export const SYMBOL_PROTOCOLS: { [key: string]: string[] } = {
+  USDT: ['OMNI', 'ERC20', 'TRC20'],
+};
 
 export const SYMBOLS_NOT_REQUIRE_PROTOCOL = [
   'BTC',

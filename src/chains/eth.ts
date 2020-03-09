@@ -192,3 +192,53 @@ export async function send(
     return e;
   });
 }
+
+export async function sendERC20Token(
+  symbol: string,
+  address: string,
+  quantity: string,
+  speed: 'Slow' | 'Average' | 'Fast' = 'Average',
+): Promise<{ [key: string]: any } | Error> {
+  assert.ok(symbol);
+  assert.ok(speed);
+  assert.ok(isETHAddress(address), `Invalid ETH address ${address}`);
+  address = utils.getAddress(address); // eslint-disable-line no-param-reassign
+
+  const tokenInfo = getTokenInfo(symbol);
+  if (tokenInfo === undefined) {
+    throw new Error(`Can NOT find ERC20 contract address of ${symbol}`);
+  }
+
+  const contractAbiFragment = [
+    {
+      name: 'transfer',
+      type: 'function',
+      inputs: [
+        {
+          name: '_to',
+          type: 'address',
+        },
+        {
+          type: 'uint256',
+          name: '_value',
+        },
+      ],
+      outputs: [
+        {
+          name: 'success',
+          type: 'bool',
+        },
+      ],
+      constant: false,
+      payable: false,
+    },
+  ];
+  const wallet = getWallet(USER_CONFIG.MNEMONIC!, 'ETH');
+  const contract = new Contract(tokenInfo.address, contractAbiFragment, wallet);
+
+  const numberOfTokens = utils.parseUnits(quantity, tokenInfo.decimals);
+
+  return contract.transfer(address, numberOfTokens).catch((e: Error) => {
+    return e;
+  });
+}

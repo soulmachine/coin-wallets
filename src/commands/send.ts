@@ -44,12 +44,7 @@ const commandModule: yargs.CommandModule = {
     const userConfig = readConfig();
     await init(userConfig);
 
-    console.info(
-      await send(
-        { symbol: params.symbol, address: params.address, memo: params.memo },
-        params.amount,
-      ),
-    );
+    console.info(await send(params.symbol, params.address, params.amount, params.memo));
   },
 };
 

@@ -41,6 +41,13 @@ function getAddress(symbol: string): Address {
         symbol,
         address: ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address,
       };
+    case 'USDT': {
+      // TODO: OMNI, TRC20
+      return {
+        symbol,
+        address: ETH.getAddressFromMnemonic(USER_CONFIG.MNEMONIC!).address,
+      };
+    }
     default:
       throw new Error(`Unsupported symbol ${symbol}`);
   }
