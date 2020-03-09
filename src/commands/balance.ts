@@ -1,8 +1,11 @@
 /* eslint-disable camelcase */
 import yargs from 'yargs';
+import * as ETH from '../chains/eth';
 import { getBalance, init } from '../index';
 import { stringifyOrder } from '../utils';
 import { readConfig, SUPPORTED_SYMBOLS } from './common';
+
+const SUPPORTED_ERC20_TOKENS = ['USDT'];
 
 const commandModule: yargs.CommandModule = {
   command: 'balance [symbol]',
@@ -33,6 +36,13 @@ const commandModule: yargs.CommandModule = {
       const balance = await getBalance(symbol); // eslint-disable-line no-await-in-loop
       result[symbol] = balance;
     }
+
+    const erc20Tokens = await ETH.getERC20TokenBalanceList(
+      ETH.getAddressFromMnemonic(userConfig.MNEMONIC!).address,
+      SUPPORTED_ERC20_TOKENS,
+    );
+    Object.assign(result, erc20Tokens);
+
     console.info(stringifyOrder(result));
   },
 };
