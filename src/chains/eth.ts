@@ -1,4 +1,5 @@
 import { strict as assert } from 'assert';
+import Axios from 'axios';
 import { getTokenInfo } from 'erc20-token-list';
 import { Contract, getDefaultProvider, providers, utils, Wallet } from 'ethers';
 import { TransactionRequest } from 'ethers/providers';
@@ -79,6 +80,71 @@ export async function getERC20TokenBalance(symbol: string, address: string): Pro
   const balance: utils.BigNumber = await contract.balanceOf(address);
 
   return parseFloat(utils.formatUnits(balance, tokenInfo.decimals));
+}
+
+export async function getERC20TokenBalanceList(
+  address: string,
+  symbols: string[],
+): Promise<{ [key: string]: number }> {
+  const result: { [key: string]: number } = {};
+
+  for (let i = 0; i < symbols.length; i += 1) {
+    const symbol = symbols[i];
+    const balance = await getERC20TokenBalance(symbol, address); // eslint-disable-line no-await-in-loop
+    result[symbol] = balance;
+  }
+  return result;
+}
+
+export async function getAllERC20TokensBalance(
+  address: string,
+  size = 100,
+): Promise<{ [key: string]: number }> {
+  assert.ok(USER_CONFIG.AMBERDATA_API_KEY);
+
+  const result: { [key: string]: number } = {};
+
+  const response = await Axios.get(
+    `https://web3api.io/api/v2/addresses/${address}/tokens?sortType=amount&direction=&descendingpage=0&size=${size}`,
+    {
+      headers: {
+        'x-amberdata-blockchain-id': 'ethereum-mainnet',
+        'x-api-key': USER_CONFIG.AMBERDATA_API_KEY!,
+      },
+    },
+  ).catch((e: Error) => {
+    return e;
+  });
+  if (response instanceof Error) {
+    // console.error(response);
+    return result;
+  }
+
+  assert.equal(response.status, 200);
+  assert.equal(response.data.status, 200);
+  assert.equal(response.data.title, 'OK');
+
+  const arr = response.data.payload.records as {
+    address: string;
+    holder: string;
+    amount: string;
+    decimals: string;
+    name: string;
+    symbol: string;
+    isERC20: boolean;
+    isERC721: boolean;
+    isERC777: boolean;
+    isERC884: boolean;
+    isERC998: boolean;
+  }[];
+
+  arr.forEach(x => {
+    result[x.symbol] = parseFloat(
+      utils.formatUnits(utils.bigNumberify(x.amount), parseInt(x.decimals, 10)),
+    );
+  });
+
+  return result;
 }
 
 export async function send(

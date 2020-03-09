@@ -18,6 +18,7 @@ export async function init({
   DFUSE_API_KEY = '',
   eosAccount = '',
   MNEMONIC = '',
+  AMBERDATA_API_KEY = '',
 }: UserConfig): Promise<void> {
   assert.ok(MNEMONIC, 'MNEMONIC is empty!');
   USER_CONFIG.MNEMONIC = MNEMONIC;
@@ -38,6 +39,10 @@ export async function init({
     } else {
       [USER_CONFIG.eosAccount] = accounts;
     }
+  }
+
+  if (AMBERDATA_API_KEY) {
+    USER_CONFIG.AMBERDATA_API_KEY = AMBERDATA_API_KEY;
   }
 }
 

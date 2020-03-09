@@ -105,3 +105,16 @@ test('getERC20TokenBalance(USDT)', async () => {
   );
   expect(balanceOKEx).toBeGreaterThan(1);
 });
+
+test('getERC20TokenBalanceList(USDT)', async () => {
+  const symbols = ['USDT', 'BNB', 'LINK', 'BAT'];
+  // Binance USDT hot wallet address
+  const balances = await ETH.getERC20TokenBalanceList(
+    '0x0681d8Db095565FE8A346fA0277bFfdE9C0eDBBF',
+    symbols,
+  );
+
+  symbols.forEach(symbol => {
+    expect(balances[symbol]).toBeGreaterThan(1);
+  });
+});
